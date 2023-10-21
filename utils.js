@@ -2,7 +2,7 @@ const POSSIBLE_SITES = ['twitter', 'instagram', 'tiktok'];
 const INVALID_LINK_STR = "ERR";
 
 //function checks whether the link is valid, and makes sure the lang is en
-// /
+// 
 function checkValidLink(link) {
 
   // Check if the link is in the correct format
@@ -45,4 +45,4 @@ const checkElement = async (selector, msg_true="", msg_false="", time_ms=3000) =
   }
 };
 
-
+module.exports = { POSSIBLE_SITES, INVALID_LINK_STR, checkValidLink, waitForElement, checkElement }

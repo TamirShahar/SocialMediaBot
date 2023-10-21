@@ -1,4 +1,5 @@
-import { test, expect } from '@playwright/test';
+const { test, expect } = require('@playwright/test');
+const SocialMediaBot = require('./social_media_bot.js');
 
 
 class TwitterBot extends SocialMediaBot {
@@ -6,24 +7,25 @@ class TwitterBot extends SocialMediaBot {
     super();
     }
 
-    log_in(username, password) {
+    async log_in(username, password) {
+
         // Implement login logic for Instagram
         // Set this.logged_in and this.cookies accordingly               
-        test('test', async ({ page }) => {
-            await page.goto('https://twitter.com/?lang=en');
-            await page.getByTestId('loginButton').click();
-            await page.getByLabel('Phone, email, or username').click();
-            await page.getByLabel('Phone, email, or username').fill(username);
-            await page.getByRole('button', { name: 'Next' }).click();
+        try{    
+            await this.page.goto('https://twitter.com/?lang=en');
+            await this.page.getByTestId('loginButton').click();
+            await this.page.getByLabel('Phone, email, or username').click();
+            await this.page.getByLabel('Phone, email, or username').fill(username);
+            await this.page.getByRole('button', { name: 'Next' }).click();
 
            if(checkElement('[role="button"][aria-label="Next"]', msg_false="Login failed, username incorrect"))
            {
                 return false;
            }
 
-            await page.getByLabel('Password', { exact: true }).click();
-            await page.getByLabel('Password', { exact: true }).fill(password);
-            await page.getByTestId('LoginForm_Login_Button').click(); 
+            await this.page.getByLabel('Password', { exact: true }).click();
+            await this.page.getByLabel('Password', { exact: true }).fill(password);
+            await this.page.getByTestId('LoginForm_Login_Button').click(); 
             
 
             
@@ -34,7 +36,11 @@ class TwitterBot extends SocialMediaBot {
 
             return true;
             
-        });
+        }
+        catch (error) {
+            console.error(error);
+            return false; // Return false in case of any errors
+          }
 
     }
     
@@ -60,3 +66,5 @@ class TwitterBot extends SocialMediaBot {
     }
 
 }
+
+module.exports = TwitterBot;
