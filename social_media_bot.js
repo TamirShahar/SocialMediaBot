@@ -1,23 +1,53 @@
 const { chromium } = require('playwright');
 const { test, expect } = require('@playwright/test');
 
+
+
 class SocialMediaBot {
-  constructor() {
-    (async() => {
+    constructor() {
+    this.browser = null;
+    this.page = null;
+    this.cookies = null;
+    this.response = null;
     this.logged_in= false;
-    await this._init_driver();  
-    this.cookies = NaN;
-  })()
+    this.initialize();
+  }
+
+  async initialize() {
+    await this._init_driver();
   }
 
   async _init_driver(params=NaN)
   {
-    this.browser = await chromium.launch();
-    this.page = await browser.newPage();
+    //this.browser = "HELLO";
+
+    this.browser = await chromium.launch({
+      headless:false
+    });
+    this.page = await this.browser.newPage();
     console.log(this.browser, this.page);
-  
   }
 
+
+  
+ async waitForElement (selector, time_ms=3000){
+  return Promise.race([
+    this.page.waitForSelector(selector),
+    new Promise((resolve) => setTimeout(resolve, time_ms))
+  ]);
+}
+
+
+async checkElement(selector, msg_true="", msg_false="", time_ms=3000){
+  const element = await this.waitForElement(selector, time_ms);
+  if (element) {
+    console.log(msg_true);
+    return element;
+  } else {
+    console.log(msg_false);
+    return false;
+  }
+}
 
   // Abstract methods (to be overridden by subclasses)
   async  log_in(username, password) {

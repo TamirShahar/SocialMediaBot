@@ -1,7 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const SocialMediaBot = require('./social_media_bot.js');
 
-
 // Example of a subclass implementing the methods
 class InstagramBot extends SocialMediaBot {
   constructor() {
@@ -16,13 +15,14 @@ class InstagramBot extends SocialMediaBot {
       await this.page.getByLabel('Password').click();
       await this.page.getByLabel('Password').fill(password);
       await this.page.getByRole('button', { name: 'Log in', exact: true }).click();    
-      await this.page.goto('https://www.instagram.com/');
-      const continueButton = await waitForElement('button:has-text("not now")');
+      await this.page.goto('https://www.instagram.com/?lang=en');
+      const continueButton = await this.waitForElement('button:has-text("not now")');
       if (continueButton) {
         await continueButton.click();
       }
     }
     catch (error) {
+        console.log('ERR:');
         console.error(error);
         return false; // Return false in case of any errors
       }

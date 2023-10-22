@@ -6,7 +6,7 @@ const INVALID_LINK_STR = "ERR";
 function checkValidLink(link) {
 
   // Check if the link is in the correct format
-  const urlPattern = new RegExp(`^(https?://)?(www\\.)?(${allowedSites.join('|')})\\.com/post/\\d+`);
+  const urlPattern = new RegExp(`^(https?://)?(www\\.)?(${POSSIBLE_SITES.join('|')})\\.com/\\d+`);
 
   if (!urlPattern.test(link)) {
     return INVALID_LINK_STR;
@@ -26,23 +26,4 @@ function checkValidLink(link) {
 }
 
 
-const waitForElement = async (selector, time_ms=3000) => {
-  return Promise.race([
-    page.waitForSelector(selector),
-    new Promise((resolve) => setTimeout(resolve, time_ms))
-  ]);
-};
-
-
-const checkElement = async (selector, msg_true="", msg_false="", time_ms=3000) => {
-  const element = await waitForElement(selector, time_ms);
-  if (element) {
-    console.log(msg_true);
-    return element;
-  } else {
-    console.log(msg_false);
-    return false;
-  }
-};
-
-module.exports = { POSSIBLE_SITES, INVALID_LINK_STR, checkValidLink, waitForElement, checkElement }
+module.exports = { POSSIBLE_SITES, INVALID_LINK_STR, checkValidLink }
