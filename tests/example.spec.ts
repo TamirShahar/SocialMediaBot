@@ -19,22 +19,17 @@ test('get started link', async ({ page }) => {
 
 test('test', async ({ page }) => {
   await page.goto('https://twitter.com/vloot_io/status/1715706268684280140');
-  var element = page.getByTestId('app-bar-close').first();
-  if(element !== null)
-  {
-    await element.click();
-  }
+ 
+  
   await page.getByTestId('login').click();
   await page.getByLabel('Phone, email, or username').click();
   await page.getByLabel('Phone, email, or username').fill('@bsh_adi');
   await page.getByLabel('Phone, email, or username').press('Enter');
-  await page.getByLabel('Password', { exact: true }).press('CapsLock');
-  await page.getByLabel('Password', { exact: true }).press('CapsLock');
   await page.getByLabel('Password', { exact: true }).fill('adibsh77');
   await page.getByTestId('LoginForm_Login_Button').click();
   await new Promise(r => setTimeout(r, 1000));
-  await page.getByTestId('retweet').click();
+  
   await new Promise(r => setTimeout(r, 1000));
-  await page.getByTestId('retweetConfirm').click();
+  
 
 });
