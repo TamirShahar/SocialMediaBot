@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const SocialMediaBot = require('./social_media_bot.js');
 const {delay} = require('./utils.js');
+const { time } = require('console');
 
 class TwitterBot extends SocialMediaBot {
     constructor() {
@@ -48,8 +49,8 @@ class TwitterBot extends SocialMediaBot {
       async like_post(link) {
         // Implement like_post logic for Instagram
         //if the user is looged in already (no need to re-login)
-        await page.goto(link);
-        await page.getByTestId('like').first().click();
+        await this.page.goto(link);
+        await this.page.getByTestId('like').first().click();
 
       }
     
@@ -57,8 +58,8 @@ class TwitterBot extends SocialMediaBot {
     async save_post(link) {
     // Implement save_post logic for Instagram
     //if the user is looged in already (no need to re-login)
-    await page.goto(link);
-    await page.getByTestId('bookmark').first().click();
+    await this.page.goto(link);
+    await this.page.getByTestId('bookmark').first().click();
 
     }
 
@@ -76,9 +77,9 @@ class TwitterBot extends SocialMediaBot {
     }
     
     async retweet(link){
-      await page.goto(link);
-      await page.getByTestId('retweet').first().click();
-      await page.getByTestId('retweetConfirm').click();
+      await this.page.goto(link);
+      await this.page.getByTestId('retweet').first().click();
+      await this.page.getByTestId('retweetConfirm').click();
     }
 
     send_dm(username, msg_str) {
@@ -88,22 +89,70 @@ class TwitterBot extends SocialMediaBot {
     ////*[@id="id__spcq3cwwt5j"]/div/div/div/div/div/div/div/div/div[2]/div/div/div/div[2]/div/div[2]/div
     /*
     */
+
+    async wait_until_percentage(videoElement, percentage)
+    {
+      let isVideoPercentPlayed = false;
+      while (!isVideoPercentPlayed) {
+        // Get the current time and duration of the video
+        const currentTime = await videoElement.evaluate((video) => video.currentTime);
+        const duration = await videoElement.evaluate((video) => video.duration);
+        await delay(1000);
+        // Calculate the percentage of the video played
+        const percentagePlayed = (currentTime / duration) * 100;
+
+        if (percentagePlayed >= percentage) {
+          isVideoPercentPlayed = true;
+        } else {
+          // Wait for a short interval before checking again
+          //await this.page.waitForTimeout(1000); // Adjust the interval as needed (in milliseconds)
+        }
+        }
+    }
     async watch_video_until(link, percentage)
     {
       await this.page.goto(link);
       console.log("entered vid");
-      const element = await this.page.$('div[data-testid="videoComponent"]');
+      await delay(1000);
+      //const videoElement = await this.page.$('div[data-testid="videoComponent"]');
+      const videoElement = await this.page.waitForSelector('div[data-testid="videoComponent"] video');
+      await delay(1000);
+      await videoElement.evaluate((video) => {
+      video.play();
+    });
+  
+      this.wait_until_percentage(videoElement, percentage);
+      return;
+    
+    // Get the current time and duration of the video
+    const currentTime = await videoElement.evaluate((video) => video.currentTime);
+    const duration = await videoElement.evaluate((video) => video.duration);
+  
+    // Calculate the percentage of the video played
+    const percentagePlayed = (currentTime / duration) * 100;
+  
+    console.log(`Percentage of video played: ${percentagePlayed}%`);
+      
       if (element) {
         console.log("element found");
+       
         const boundingBox = await element.boundingBox();
         if (boundingBox) {
-          const x = boundingBox.x + boundingBox.width * 0.5;// (0.5 + Math.random() * 0.5);
+          /*const x = boundingBox.x + boundingBox.width * 0.5;// (0.5 + Math.random() * 0.5);
           const y = boundingBox.y + boundingBox.height * 0.5;// (0.5 + Math.random() * 0.5);
           await this.page.mouse.move(x, y);
+          */
+          
+           await element.hover();
+          //await element.click();
+          await delay(2000);
+          //get needed time
+          await element.click();
           console.log("moved mouse");
         }
       }
       await delay(1000);
+
       //method watches viedo until certain percentage, then pauses/exits
       /*
       <div aria-label="Seek slider" role="slider" aria-valuemax="52.1" aria-valuemin="0" aria-valuenow="27.77245" aria-valuetext="0:27 of 0:52" tabindex="0" class="css-1dbjc4n r-1awozwy r-sdzlij r-1loqt21 r-mabqd8 r-1777fci r-bz4dqc r-1ny4l3l r-u8s1d r-o7ynqc r-6416eg r-1yvhtrz" style="left: calc(53.306% - 8.52897px);"><div class="css-1dbjc4n r-14lw9ot r-sdzlij r-9hvr93 r-10ptun7 r-a0m21o r-13tjlyg r-axxi2z r-1janqcz"></div></div>
