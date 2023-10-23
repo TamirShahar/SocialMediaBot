@@ -44,21 +44,38 @@ class TwitterBot extends SocialMediaBot {
 
     }
     
-      like_post(link) {
+      async like_post(link) {
         // Implement like_post logic for Instagram
+        //if the user is looged in already (no need to re-login)
+        await page.goto(link);
+        await page.getByTestId('like').first().click();
+
       }
     
 
-    save_post(link) {
+    async save_post(link) {
     // Implement save_post logic for Instagram
+    //if the user is looged in already (no need to re-login)
+    await page.goto(link);
+    await page.getByTestId('bookmark').first().click();
+
     }
 
-    comment_on_post(link, comment_str) {
+    async comment_on_post(link, comment_str) {
     // Implement comment_on_post logic for Instagram
+    await page.goto(link);
+    await page.getByTestId('reply').first().click();
+    await page.getByRole('textbox', { name: 'Post text' }).fill(comment_str);
+    await page.getByTestId('tweetButton').click();
+
     }
 
     signup(mail, username, password) {
     // Implement signup logic for Instagram
+    }
+    
+    async retweet(link){
+
     }
 
     send_dm(username, msg_str) {
