@@ -75,12 +75,20 @@ class TwitterBot extends SocialMediaBot {
     }
     
     async retweet(link){
-
+      await page.goto(link);
+      await page.getByTestId('retweet').first().click();
+      await page.getByTestId('retweetConfirm').click();
     }
 
     send_dm(username, msg_str) {
     // Implement send_dm logic for Instagram
     }
+
+    async watch_video_until(percentage){
+
+    }
+
+    
 
 }
 
