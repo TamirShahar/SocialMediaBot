@@ -1,6 +1,7 @@
 const { chromium } = require('playwright');
+const { webkit } = require('playwright-webkit');
 const { test, expect } = require('@playwright/test');
-
+const {delay} = require('./utils.js');
 
 
 class SocialMediaBot {
@@ -20,10 +21,11 @@ class SocialMediaBot {
   async _init_driver(params=NaN)
   {
     //this.browser = "HELLO";
+    this.browser = await webkit.launch({ headless: false });
 
-    this.browser = await chromium.launch({
-      headless:false
-    });
+//    this.browser = await edge.launch({
+  //    headless:false
+   // });
     this.page = await this.browser.newPage();
     console.log(this.browser, this.page);
   }

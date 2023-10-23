@@ -1,5 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const SocialMediaBot = require('./social_media_bot.js');
+const {delay} = require('./utils.js');
 
 // Example of a subclass implementing the methods
 class InstagramBot extends SocialMediaBot {
@@ -24,7 +25,7 @@ class InstagramBot extends SocialMediaBot {
     catch (error) {
         console.log('ERR:');
         console.error(error);
-        return false; // Return false in case of any errors
+        this.logged_in = false; // Return false in case of any errors
       }
   
     this.logged_in = true;
@@ -34,10 +35,10 @@ class InstagramBot extends SocialMediaBot {
     // Implement like_post logic for Instagram
     try{
       await this.page.goto(link);
-      await this.page.locator('div').filter({ hasText: /^LikeCommentShare PostShare Post$/ }).getByRole('button').first().click();
+      await this.page.getByRole('button', { name: 'Log in', exact: true }).click();
       }catch (error) {
         console.error(error);
-        return false; // Return false in case of any errors
+         // Return false in case of any errors
       } 
   }
 
@@ -52,6 +53,7 @@ class InstagramBot extends SocialMediaBot {
         return false; // Return false in case of any errors
       } 
   }
+
 
   async comment_on_post(link, comment_str) {
     // Implement comment_on_post logic for Instagram

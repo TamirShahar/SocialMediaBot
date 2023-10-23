@@ -3,6 +3,10 @@ const INVALID_LINK_STR = "ERR";
 
 //function checks whether the link is valid, and makes sure the lang is en
 // 
+async function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function checkValidLink(link) {
 
   // Check if the link is in the correct format
@@ -26,4 +30,4 @@ function checkValidLink(link) {
 }
 
 
-module.exports = { POSSIBLE_SITES, INVALID_LINK_STR, checkValidLink }
+module.exports = { POSSIBLE_SITES, INVALID_LINK_STR, checkValidLink,delay };

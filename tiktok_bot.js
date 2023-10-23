@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const SocialMediaBot = require('./social_media_bot.js');
-
+const {delay} = require('./utils.js');
 
 
 // Example of a subclass implementing the methods
