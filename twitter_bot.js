@@ -2,6 +2,15 @@ const { test, expect } = require('@playwright/test');
 const SocialMediaBot = require('./social_media_bot.js');
 const {delay} = require('./utils.js');
 const { time } = require('console');
+const { writeHeapSnapshot } = require('v8');
+
+
+const VIEW_TO_ACTION = {
+  'everyone': TwitterBot.prototype._click_everyone,
+  'follow': TwitterBot.prototype._click_follow,
+  'verified': TwitterBot.prototype._click_verified,
+  'mention':  TwitterBot.prototype._click_mention
+};
 
 class TwitterBot extends SocialMediaBot {
     constructor() {
@@ -46,6 +55,8 @@ class TwitterBot extends SocialMediaBot {
 
     }
     
+    //to_load_page - whether we need to load the page that is liked. The value is false when in the flow
+    // the page is already opened - there is no need to load it again
       async like_post(link, to_load_page=true) {
         // Implement like_post logic for Instagram
         //if the user is looged in already (no need to re-login)
@@ -67,17 +78,16 @@ class TwitterBot extends SocialMediaBot {
 
     }
 
-    async comment_on_post(link, comment_str) {
+    async comment_on_post(link, comment_str,to_load_page=true) {      
     // Implement comment_on_post logic for Instagram
-    await page.goto(link);
+    if(to_load_page)
+    {
+      await page.goto(link);
+    }
     await page.getByTestId('reply').first().click();
     await page.getByRole('textbox', { name: 'Post text' }).fill(comment_str);
     await page.getByTestId('tweetButton').click();
 
-    }
-
-    signup(mail, username, password) {
-    // Implement signup logic for Instagram
     }
     
     async retweet(link){
@@ -160,6 +170,50 @@ class TwitterBot extends SocialMediaBot {
       await this.page.getByTestId('ocfSettingsListNextButton').click();
     }
     
+    async set_who_can_view_post(who_can_view)
+    {
+      await page.locator('div:nth-child(3) > div:nth-child(2) > div > div > div > div > div:nth-child(2) > div > div > div').first().click();
+      await VIEW_TO_ACTION[who_can_view].call();
+    }
+
+    async _click_everyone()
+    {  
+      await this.page.getByRole('menuitem', { name: 'Everyone' }).click();
+    }
+    async _click_follow()
+    {  
+      await page.getByRole('menuitem', { name: 'Accounts you follow' }).click();
+    }
+    async _click_verified()
+    {  
+      await page.getByRole('menuitem', { name: 'Verified accounts' }).click();
+    }
+    async _click_mention()
+    {  
+      await page.getByRole('menuitem', { name: 'Only accounts you mention' }).click();
+    }
+
+
+    async post(text, is_home_page=false, who_can_view='everyone')
+    {
+      if(!is_home_page)
+      {
+        await this.page.goto('https://twitter.com/home?lang=en');
+      }
+//todo - replace with this.page
+      await page.getByTestId('SideNav_NewTweet_Button').click(); //clicking the post button
+      await page.getByRole('textbox', { name: 'Post text' }).locator('div').nth(2).click();
+      await page.getByRole('textbox', { name: 'Post text' }).fill(text);//filling the text
+
+      await this.set_who_can_view_post(who_can_view);
+
+
+      await page.getByTestId('tweetButton').click();
+
+
+    }
+
+
 
 }
 
