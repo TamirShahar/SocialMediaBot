@@ -7,18 +7,22 @@ const TwitterBot = require('./twitter_bot.js');
 const {delay, checkValidLink, INVALID_LINK_STR} = require('./utils.js');
 
 async function main() {
-    const bot = new TwitterBot();    
+    const bot = new TwitterBot();  
+    await bot.initialize();  
     console.log("let's go twitter");
-    await delay(1000);
-    await delay(1000);
+
 
   //  bot.page.goto('https://twitter.com/nocontextfooty/status/171605429040021950?lang=en');
     
     await bot.log_in('Uchitel44','159258357456');
     //await delay(3000);
-    await bot.watch_video_until('https://twitter.com/CollinRugg/status/1716213636635500948', 80);
-    await delay(1000);
+    await bot.watch_video_until('https://twitter.com/BarkolAmir/status/1716525300308165016', 50);
+    await bot.like_post("", false);
+    await bot.save_post("", false);
+    await delay(1000);    
     await bot.page.close();
+      
+//      await bot.page.close();
     // /await bot.report_user('https://twitter.com/aysardm?lang=en');
 
 

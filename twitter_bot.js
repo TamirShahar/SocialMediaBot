@@ -46,19 +46,23 @@ class TwitterBot extends SocialMediaBot {
 
     }
     
-      async like_post(link) {
+      async like_post(link, to_load_page=true) {
         // Implement like_post logic for Instagram
         //if the user is looged in already (no need to re-login)
-        await this.page.goto(link);
+        if(to_load_page){
+          await this.page.goto(link);
+        }
         await this.page.getByTestId('like').first().click();
 
       }
     
 
-    async save_post(link) {
-    // Implement save_post logic for Instagram
-    //if the user is looged in already (no need to re-login)
-    await this.page.goto(link);
+    async save_post(link,to_load_page=true) {
+      // Implement like_post logic for Instagram
+      //if the user is looged in already (no need to re-login)
+      if(to_load_page){
+        await this.page.goto(link);
+      }
     await this.page.getByTestId('bookmark').first().click();
 
     }
@@ -86,81 +90,40 @@ class TwitterBot extends SocialMediaBot {
     // Implement send_dm logic for Instagram
     }
 
-    ////*[@id="id__spcq3cwwt5j"]/div/div/div/div/div/div/div/div/div[2]/div/div/div/div[2]/div/div[2]/div
-    /*
-    */
 
-    async wait_until_percentage(videoElement, percentage)
-    {
-      let isVideoPercentPlayed = false;
-      while (!isVideoPercentPlayed) {
-        // Get the current time and duration of the video
-        const currentTime = await videoElement.evaluate((video) => video.currentTime);
-        const duration = await videoElement.evaluate((video) => video.duration);
-        await delay(1000);
-        // Calculate the percentage of the video played
-        const percentagePlayed = (currentTime / duration) * 100;
+      async wait_until_percentage(videoElement, percentage)
+      {
+        let isVideoPercentPlayed = false;
+        while (!isVideoPercentPlayed) {
+         
+          if (!this.page.isClosed()) {
+            // Get the current time and duration of the video
+          const currentTime = await videoElement.evaluate((video) => video.currentTime);
+          const duration = await videoElement.evaluate((video) => video.duration);
+          // Calculate the percentage of the video played
+          const percentagePlayed = (currentTime / duration) * 100;
 
-        if (percentagePlayed >= percentage) {
-          isVideoPercentPlayed = true;
-        } else {
-          // Wait for a short interval before checking again
-          //await this.page.waitForTimeout(1000); // Adjust the interval as needed (in milliseconds)
+          if (percentagePlayed >= percentage) {
+            isVideoPercentPlayed = true;
+          } else {
+            // Wait for a short interval before checking again
+            await this.page.waitForTimeout(1000); // Adjust the interval as needed (in milliseconds)
+          }
+          }
         }
-        }
-    }
+      }
     async watch_video_until(link, percentage)
     {
       await this.page.goto(link);
       console.log("entered vid");
-      await delay(1000);
-      //const videoElement = await this.page.$('div[data-testid="videoComponent"]');
+      
       const videoElement = await this.page.waitForSelector('div[data-testid="videoComponent"] video');
-      await delay(1000);
       await videoElement.evaluate((video) => {
       video.play();
     });
   
-      this.wait_until_percentage(videoElement, percentage);
+      await this.wait_until_percentage(videoElement, percentage);
       return;
-    
-    // Get the current time and duration of the video
-    const currentTime = await videoElement.evaluate((video) => video.currentTime);
-    const duration = await videoElement.evaluate((video) => video.duration);
-  
-    // Calculate the percentage of the video played
-    const percentagePlayed = (currentTime / duration) * 100;
-  
-    console.log(`Percentage of video played: ${percentagePlayed}%`);
-      
-      if (element) {
-        console.log("element found");
-       
-        const boundingBox = await element.boundingBox();
-        if (boundingBox) {
-          /*const x = boundingBox.x + boundingBox.width * 0.5;// (0.5 + Math.random() * 0.5);
-          const y = boundingBox.y + boundingBox.height * 0.5;// (0.5 + Math.random() * 0.5);
-          await this.page.mouse.move(x, y);
-          */
-          
-           await element.hover();
-          //await element.click();
-          await delay(2000);
-          //get needed time
-          await element.click();
-          console.log("moved mouse");
-        }
-      }
-      await delay(1000);
-
-      //method watches viedo until certain percentage, then pauses/exits
-      /*
-      <div aria-label="Seek slider" role="slider" aria-valuemax="52.1" aria-valuemin="0" aria-valuenow="27.77245" aria-valuetext="0:27 of 0:52" tabindex="0" class="css-1dbjc4n r-1awozwy r-sdzlij r-1loqt21 r-mabqd8 r-1777fci r-bz4dqc r-1ny4l3l r-u8s1d r-o7ynqc r-6416eg r-1yvhtrz" style="left: calc(53.306% - 8.52897px);"><div class="css-1dbjc4n r-14lw9ot r-sdzlij r-9hvr93 r-10ptun7 r-a0m21o r-13tjlyg r-axxi2z r-1janqcz"></div></div>
-      
-      <div aria-label="Seek slider" role="slider" aria-valuemax="52.1" aria-valuemin="0" aria-valuenow="27.77245" aria-valuetext="0:27 of 0:52" tabindex="0" class="css-1dbjc4n r-1awozwy r-sdzlij r-1loqt21 r-mabqd8 r-1777fci r-bz4dqc r-1ny4l3l r-u8s1d r-o7ynqc r-6416eg r-1yvhtrz" style="left: calc(53.306% - 8.52897px);"><div class="css-1dbjc4n r-14lw9ot r-sdzlij r-9hvr93 r-10ptun7 r-a0m21o r-13tjlyg r-axxi2z r-1janqcz"></div></div>
-      //*[@id="id__kdh193ptksg"]/div/div/div/div/div/div/div/div/div[2]/div/div/div/div[2]/div/div[2]/div/div/div[4]/div
-      */
-
     }
 
     static get_username_from_link(link)
@@ -172,9 +135,12 @@ class TwitterBot extends SocialMediaBot {
         return NaN;
     }
     
-    async report_user(link_to_profile)
+    async report_user(link_to_profile, to_reload_page=true)
     {
-      await this.page.goto(link_to_profile);
+      if(to_reload_page)
+      {
+        await this.page.goto(link_to_profile);
+      }
       await this.page.getByTestId('userActions').click();
       const username = TwitterBot.get_username_from_link(link_to_profile);
       if(!username)

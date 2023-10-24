@@ -11,7 +11,6 @@ class SocialMediaBot {
     this.cookies = null;
     this.response = null;
     this.logged_in= false;
-    this.initialize();
   }
 
   async initialize() {
