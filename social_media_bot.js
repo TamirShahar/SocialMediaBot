@@ -5,7 +5,7 @@ const {delay} = require('./utils.js');
 
 
 class SocialMediaBot {
-    constructor() {
+      constructor() {
     this.browser = null;
     this.page = null;
     this.cookies = null;
@@ -15,6 +15,7 @@ class SocialMediaBot {
 
   async initialize() {
     await this._init_driver();
+    
   }
 
   async _init_driver(params=NaN)

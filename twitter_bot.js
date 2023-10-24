@@ -5,18 +5,35 @@ const { time } = require('console');
 const { writeHeapSnapshot } = require('v8');
 
 
-const VIEW_TO_ACTION = {
-  'everyone': TwitterBot.prototype._click_everyone,
-  'follow': TwitterBot.prototype._click_follow,
-  'verified': TwitterBot.prototype._click_verified,
-  'mention':  TwitterBot.prototype._click_mention
-};
+
 
 class TwitterBot extends SocialMediaBot {
+  VIEW_TO_ACTION = {
+    'everyone': TwitterBot.prototype._click_everyone,
+    'follow': TwitterBot.prototype._click_follow,
+    'verified': TwitterBot.prototype._click_verified,
+    'mention':  TwitterBot.prototype._click_mention
+  };
     constructor() {
     super();
     }
+    async check_logged_in()
+    {
+      await this.page.goto('https://twitter.com/?lang=en');
+      try {
+        // Wait for the redirection with a maximum timeout of 1000 ms (1 second)
+        await this.page.waitForNavigation({ timeout: 2000 });
+      } catch (error) {
+        // No redirection happened
+      }
+      const currentURL = this.page.url();
+      console.log(currentURL);
+      // Check the URL to determine if the user is logged in
+      return currentURL.includes('/home');
+    }
 //we should turn on notifications upon log in - so that the pop up doesn't appear
+
+    // code assumes username and password are correct!
     async log_in(username, password) {
 
         // Implement login logic for Instagram
@@ -38,11 +55,11 @@ class TwitterBot extends SocialMediaBot {
             await this.page.getByTestId('LoginForm_Login_Button').click(); 
             
 
-            await delay(3000);
-            if(this.checkElement('[data-testid="LoginForm_Login_Button"]',"Logged in successfully", "Login failed, password incorrect"))
+            //await delay(3000);
+           /* if(this.checkElement('[data-testid="LoginForm_Login_Button"]',"Logged in successfully", "Login failed, password incorrect"))
             {
                  return false;
-            }
+            }*/
 
             return true;
             
@@ -172,8 +189,8 @@ class TwitterBot extends SocialMediaBot {
     
     async set_who_can_view_post(who_can_view)
     {
-      await page.locator('div:nth-child(3) > div:nth-child(2) > div > div > div > div > div:nth-child(2) > div > div > div').first().click();
-      await VIEW_TO_ACTION[who_can_view].call();
+      await this.page.locator('div:nth-child(3) > div:nth-child(2) > div > div > div > div > div:nth-child(2) > div > div > div').first().click();
+      await this.VIEW_TO_ACTION[who_can_view].call();
     }
 
     async _click_everyone()
@@ -182,15 +199,15 @@ class TwitterBot extends SocialMediaBot {
     }
     async _click_follow()
     {  
-      await page.getByRole('menuitem', { name: 'Accounts you follow' }).click();
+      await this.page.getByRole('menuitem', { name: 'Accounts you follow' }).click();
     }
     async _click_verified()
     {  
-      await page.getByRole('menuitem', { name: 'Verified accounts' }).click();
+      await this.page.getByRole('menuitem', { name: 'Verified accounts' }).click();
     }
     async _click_mention()
     {  
-      await page.getByRole('menuitem', { name: 'Only accounts you mention' }).click();
+      await this.page.getByRole('menuitem', { name: 'Only accounts you mention' }).click();
     }
 
 
@@ -198,19 +215,17 @@ class TwitterBot extends SocialMediaBot {
     {
       if(!is_home_page)
       {
-        await this.page.goto('https://twitter.com/home?lang=en');
+        await this.this.page.goto('https://twitter.com/home?lang=en');
       }
-//todo - replace with this.page
-      await page.getByTestId('SideNav_NewTweet_Button').click(); //clicking the post button
-      await page.getByRole('textbox', { name: 'Post text' }).locator('div').nth(2).click();
-      await page.getByRole('textbox', { name: 'Post text' }).fill(text);//filling the text
+
+      await this.page.getByTestId('SideNav_NewTweet_Button').click(); //clicking the post button
+      await this.page.getByRole('textbox', { name: 'Post text' }).locator('div').nth(2).click();
+      await this.page.getByRole('textbox', { name: 'Post text' }).fill(text);//filling the text
 
       await this.set_who_can_view_post(who_can_view);
 
 
-      await page.getByTestId('tweetButton').click();
-
-
+      await this.page.getByTestId('tweetButton').click();
     }
 
 

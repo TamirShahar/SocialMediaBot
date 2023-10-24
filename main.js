@@ -8,13 +8,21 @@ const {delay, checkValidLink, INVALID_LINK_STR} = require('./utils.js');
 
 async function main() {
     const bot = new TwitterBot();  
-    await bot.initialize();  
-    console.log("let's go twitter");
-
-
-  //  bot.page.goto('https://twitter.com/nocontextfooty/status/171605429040021950?lang=en');
     
+    await bot.initialize();
+   // await delay(1000);
+   var is_logged_in =await bot.check_logged_in();
+  console.log(is_logged_in);
+//    var currentURL = await bot.page.url();
+  //  bot.page.goto('https://twitter.com/nocontextfooty/status/171605429040021950?lang=en');
+//  console.log("URL before login:", currentURL);
     await bot.log_in('Uchitel44','159258357456');
+    console.log("WE INNNN");
+    is_logged_in = await bot.check_logged_in();
+    console.log(is_logged_in);
+    
+    
+  return;
     //await delay(3000);
     await bot.watch_video_until('https://twitter.com/BarkolAmir/status/1716525300308165016', 50);
     await bot.like_post("", false);
