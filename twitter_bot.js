@@ -8,18 +8,21 @@ const { writeHeapSnapshot } = require('v8');
 
 
 class TwitterBot extends SocialMediaBot {
-  VIEW_TO_ACTION = {
+ /* VIEW_TO_ACTION = {
     'everyone': TwitterBot.prototype._click_everyone,
     'follow': TwitterBot.prototype._click_follow,
     'verified': TwitterBot.prototype._click_verified,
     'mention':  TwitterBot.prototype._click_mention
-  };
+  };*/
     constructor() {
     super();
     }
-    async check_logged_in()
+    async check_logged_in(to_load_homepage=true)
     {
-      await this.page.goto('https://twitter.com/?lang=en');
+      if(to_load_homepage)
+      {
+        await this.page.goto('https://twitter.com/?lang=en');
+      }
       try {
         // Wait for the redirection with a maximum timeout of 1000 ms (1 second)
         await this.page.waitForNavigation({ timeout: 2000 });
@@ -113,12 +116,12 @@ class TwitterBot extends SocialMediaBot {
       await this.page.getByTestId('retweetConfirm').click();
     }
 
-    send_dm(username, msg_str) {
+    async send_dm(username, msg_str) {
     // Implement send_dm logic for Instagram
     }
 
 
-      async wait_until_percentage(videoElement, percentage)
+    async wait_until_percentage(videoElement, percentage)
       {
         let isVideoPercentPlayed = false;
         while (!isVideoPercentPlayed) {
@@ -190,7 +193,31 @@ class TwitterBot extends SocialMediaBot {
     async set_who_can_view_post(who_can_view)
     {
       await this.page.locator('div:nth-child(3) > div:nth-child(2) > div > div > div > div > div:nth-child(2) > div > div > div').first().click();
-      await this.VIEW_TO_ACTION[who_can_view].call();
+      if(who_can_view == 'follow')
+      {
+        await this.page.getByRole('menuitem', { name: 'Accounts you follow' }).click();
+      }
+      else if(who_can_view == 'everyone')
+      {
+        await this.page.getByRole('menuitem', { name: 'Everyone' }).click();
+      }
+      else if(who_can_view == 'verified')
+      {
+        await this.page.getByRole('menuitem', { name: 'Verified accounts' }).click();
+      }
+      else if(who_can_view == 'mention')
+      {
+        await this.page.getByRole('menuitem', { name: 'Only accounts you mention' }).click();
+      }
+      else
+      {
+        console.error("Wrong post view setting: ", who_can_view);
+      }
+
+/*      const viewToAction = this.VIEW_TO_ACTION;
+      const actionFunction = viewToAction[who_can_view];
+
+      await actionFunction();*/
     }
 
     async _click_everyone()
@@ -215,7 +242,7 @@ class TwitterBot extends SocialMediaBot {
     {
       if(!is_home_page)
       {
-        await this.this.page.goto('https://twitter.com/home?lang=en');
+        await this.page.goto('https://twitter.com/home?lang=en');
       }
 
       await this.page.getByTestId('SideNav_NewTweet_Button').click(); //clicking the post button
