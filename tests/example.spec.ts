@@ -18,18 +18,17 @@ test('get started link', async ({ page }) => {
 });
 
 test('test', async ({ page }) => {
-  await page.goto('https://twitter.com/vloot_io/status/1715706268684280140');
- 
-  
-  await page.getByTestId('login').click();
+  await page.goto('https://twitter.com/yarinlubliner');
+  await page.goto('https://twitter.com/i/flow/login?redirect_after_login=%2Fyarinlubliner');
   await page.getByLabel('Phone, email, or username').click();
   await page.getByLabel('Phone, email, or username').fill('@bsh_adi');
   await page.getByLabel('Phone, email, or username').press('Enter');
   await page.getByLabel('Password', { exact: true }).fill('adibsh77');
-  await page.getByTestId('LoginForm_Login_Button').click();
-  await new Promise(r => setTimeout(r, 1000));
-  
-  await new Promise(r => setTimeout(r, 1000));
-  
+  await page.getByLabel('Password', { exact: true }).press('Enter');
+  //await page.getByTestId('ocfEnterTextTextInput').fill('0523672257');
+  //await page.getByTestId('ocfEnterTextTextInput').press('Enter');
+  await page.getByTestId('sendDMFromProfile').click();
+  await page.getByTestId('dmComposerTextInput').fill('היי');
+  await page.getByTestId('dmComposerSendButton').click();
 
 });
