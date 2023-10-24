@@ -110,6 +110,12 @@ class TwitterBot extends SocialMediaBot {
 
     }
     
+    async comment_on_comment(link, comment_str,to_load_page=true) {      
+      // Implement comment_on_comment - 
+      //to_load_page will probably be true most of the time
+      this.comment_on_post(link, comment_str, to_load_page);
+      }
+
     async retweet(link){
       await this.page.goto(link);
       await this.page.getByTestId('retweet').first().click();
@@ -219,24 +225,6 @@ class TwitterBot extends SocialMediaBot {
 
       await actionFunction();*/
     }
-
-    async _click_everyone()
-    {  
-      await this.page.getByRole('menuitem', { name: 'Everyone' }).click();
-    }
-    async _click_follow()
-    {  
-      await this.page.getByRole('menuitem', { name: 'Accounts you follow' }).click();
-    }
-    async _click_verified()
-    {  
-      await this.page.getByRole('menuitem', { name: 'Verified accounts' }).click();
-    }
-    async _click_mention()
-    {  
-      await this.page.getByRole('menuitem', { name: 'Only accounts you mention' }).click();
-    }
-
 
     async post(text, is_home_page=false, who_can_view='everyone')
     {
