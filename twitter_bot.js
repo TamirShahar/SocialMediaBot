@@ -113,7 +113,7 @@ class TwitterBot extends SocialMediaBot {
     async comment_on_comment(link, comment_str,to_load_page=true) {      
       // Implement comment_on_comment - 
       //to_load_page will probably be true most of the time
-      this.comment_on_post(link, comment_str, to_load_page);
+      await this.comment_on_post(link, comment_str, to_load_page);
       }
 
     async retweet(link){

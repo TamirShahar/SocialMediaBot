@@ -7,3 +7,5 @@ David/
 /playwright-report/
 /playwright/.cache/
 twitterContext/
+.idea/
+.vscode/
