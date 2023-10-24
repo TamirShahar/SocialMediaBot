@@ -86,8 +86,19 @@ class TwitterBot extends SocialMediaBot {
       await this.page.getByTestId('retweetConfirm').click();
     }
 
-    send_dm(username, msg_str) {
-    // Implement send_dm logic for Instagram
+    async send_dm(username, msg_str) {
+    // Implement send_dm logic for twitter
+    /* Because of twitter policy, you can send dm's only to people
+       who follow you (unless you have a premium user which costs 300$ for a year)
+       this code works only if the target user follows the bot's user
+    */
+    const link = 'https://twitter.com/' + username;
+    await page.goto(link);
+    await page.getByTestId('sendDMFromProfile').click();
+    await page.getByTestId('dmComposerTextInput').fill(msg_str);
+    await page.getByTestId('dmComposerSendButton').click();
+
+
     }
 
 
