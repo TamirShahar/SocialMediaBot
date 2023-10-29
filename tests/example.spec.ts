@@ -18,18 +18,14 @@ test('get started link', async ({ page }) => {
 });
 
 test('test', async ({ page }) => {
-  await page.goto('https://twitter.com/vloot_io/status/1715706268684280140');
- 
-  
-  await page.getByTestId('login').click();
-  await page.getByLabel('Phone, email, or username').click();
-  await page.getByLabel('Phone, email, or username').fill('@bsh_adi');
-  await page.getByLabel('Phone, email, or username').press('Enter');
-  await page.getByLabel('Password', { exact: true }).fill('adibsh77');
-  await page.getByTestId('LoginForm_Login_Button').click();
-  await new Promise(r => setTimeout(r, 1000));
-  
-  await new Promise(r => setTimeout(r, 1000));
-  
-
+  await page.goto('https://www.tiktok.com/explore');
+  await page.locator('#header-login-button').click();
+  await page.getByRole('link', { name: 'Use phone / email / username' }).click();
+  await page.getByRole('link', { name: 'Log in with email or username' }).click();
+  await page.getByPlaceholder('Email or username').click();
+  await page.getByPlaceholder('Email or username').fill('xf0rdfad');
+  await page.getByPlaceholder('Email or username').press('Tab');
+  await page.getByPlaceholder('Password').press('CapsLock');
+  await page.getByPlaceholder('Password').fill('adibsh77!');
+  await page.getByLabel('Log in').getByRole('button', { name: 'Log in' }).click();
 });

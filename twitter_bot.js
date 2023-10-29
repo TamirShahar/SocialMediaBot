@@ -5,18 +5,38 @@ const { time } = require('console');
 const { writeHeapSnapshot } = require('v8');
 
 
-const VIEW_TO_ACTION = {
-  'everyone': TwitterBot.prototype._click_everyone,
-  'follow': TwitterBot.prototype._click_follow,
-  'verified': TwitterBot.prototype._click_verified,
-  'mention':  TwitterBot.prototype._click_mention
-};
+
 
 class TwitterBot extends SocialMediaBot {
+ /* VIEW_TO_ACTION = {
+    'everyone': TwitterBot.prototype._click_everyone,
+    'follow': TwitterBot.prototype._click_follow,
+    'verified': TwitterBot.prototype._click_verified,
+    'mention':  TwitterBot.prototype._click_mention
+  };*/
     constructor() {
     super();
     }
+    async check_logged_in(to_load_homepage=true)
+    {
+      if(to_load_homepage)
+      {
+        await this.page.goto('https://twitter.com/?lang=en');
+      }
+      try {
+        // Wait for the redirection with a maximum timeout of 1000 ms (1 second)
+        await this.page.waitForNavigation({ timeout: 2000 });
+      } catch (error) {
+        // No redirection happened
+      }
+      const currentURL = this.page.url();
+      console.log(currentURL);
+      // Check the URL to determine if the user is logged in
+      return currentURL.includes('/home');
+    }
 //we should turn on notifications upon log in - so that the pop up doesn't appear
+
+    // code assumes username and password are correct!
     async log_in(username, password) {
 
         // Implement login logic for Instagram
@@ -38,11 +58,11 @@ class TwitterBot extends SocialMediaBot {
             await this.page.getByTestId('LoginForm_Login_Button').click(); 
             
 
-            await delay(3000);
-            if(this.checkElement('[data-testid="LoginForm_Login_Button"]',"Logged in successfully", "Login failed, password incorrect"))
+            //await delay(3000);
+           /* if(this.checkElement('[data-testid="LoginForm_Login_Button"]',"Logged in successfully", "Login failed, password incorrect"))
             {
                  return false;
-            }
+            }*/
 
             return true;
             
@@ -90,18 +110,34 @@ class TwitterBot extends SocialMediaBot {
 
     }
     
+    async comment_on_comment(link, comment_str,to_load_page=true) {      
+      // Implement comment_on_comment - 
+      //to_load_page will probably be true most of the time
+      this.comment_on_post(link, comment_str, to_load_page);
+      }
+
     async retweet(link){
       await this.page.goto(link);
       await this.page.getByTestId('retweet').first().click();
       await this.page.getByTestId('retweetConfirm').click();
     }
 
-    send_dm(username, msg_str) {
-    // Implement send_dm logic for Instagram
+    async send_dm(username, msg_str) {
+
+    // Implement send_dm logic for twitter
+    /* Because of twitter policy, you can send dm's only to people
+       who follow you (unless you have a premium user which costs 300$ for a year)
+       this code works only if the target user follows the bot's user
+    */
+    const link = 'https://twitter.com/' + username;
+    await page.goto(link);
+    await page.getByTestId('sendDMFromProfile').click();
+    await page.getByTestId('dmComposerTextInput').fill(msg_str);
+    await page.getByTestId('dmComposerSendButton').click();
     }
 
 
-      async wait_until_percentage(videoElement, percentage)
+    async wait_until_percentage(videoElement, percentage)
       {
         let isVideoPercentPlayed = false;
         while (!isVideoPercentPlayed) {
@@ -172,27 +208,33 @@ class TwitterBot extends SocialMediaBot {
     
     async set_who_can_view_post(who_can_view)
     {
-      await page.locator('div:nth-child(3) > div:nth-child(2) > div > div > div > div > div:nth-child(2) > div > div > div').first().click();
-      await VIEW_TO_ACTION[who_can_view].call();
-    }
+      await this.page.locator('div:nth-child(3) > div:nth-child(2) > div > div > div > div > div:nth-child(2) > div > div > div').first().click();
+      if(who_can_view == 'follow')
+      {
+        await this.page.getByRole('menuitem', { name: 'Accounts you follow' }).click();
+      }
+      else if(who_can_view == 'everyone')
+      {
+        await this.page.getByRole('menuitem', { name: 'Everyone' }).click();
+      }
+      else if(who_can_view == 'verified')
+      {
+        await this.page.getByRole('menuitem', { name: 'Verified accounts' }).click();
+      }
+      else if(who_can_view == 'mention')
+      {
+        await this.page.getByRole('menuitem', { name: 'Only accounts you mention' }).click();
+      }
+      else
+      {
+        console.error("Wrong post view setting: ", who_can_view);
+      }
 
-    async _click_everyone()
-    {  
-      await this.page.getByRole('menuitem', { name: 'Everyone' }).click();
-    }
-    async _click_follow()
-    {  
-      await page.getByRole('menuitem', { name: 'Accounts you follow' }).click();
-    }
-    async _click_verified()
-    {  
-      await page.getByRole('menuitem', { name: 'Verified accounts' }).click();
-    }
-    async _click_mention()
-    {  
-      await page.getByRole('menuitem', { name: 'Only accounts you mention' }).click();
-    }
+/*      const viewToAction = this.VIEW_TO_ACTION;
+      const actionFunction = viewToAction[who_can_view];
 
+      await actionFunction();*/
+    }
 
     async post(text, is_home_page=false, who_can_view='everyone')
     {
@@ -200,17 +242,15 @@ class TwitterBot extends SocialMediaBot {
       {
         await this.page.goto('https://twitter.com/home?lang=en');
       }
-//todo - replace with this.page
-      await page.getByTestId('SideNav_NewTweet_Button').click(); //clicking the post button
-      await page.getByRole('textbox', { name: 'Post text' }).locator('div').nth(2).click();
-      await page.getByRole('textbox', { name: 'Post text' }).fill(text);//filling the text
+
+      await this.page.getByTestId('SideNav_NewTweet_Button').click(); //clicking the post button
+      await this.page.getByRole('textbox', { name: 'Post text' }).locator('div').nth(2).click();
+      await this.page.getByRole('textbox', { name: 'Post text' }).fill(text);//filling the text
 
       await this.set_who_can_view_post(who_can_view);
 
 
-      await page.getByTestId('tweetButton').click();
-
-
+      await this.page.getByTestId('tweetButton').click();
     }
 
 

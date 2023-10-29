@@ -5,7 +5,7 @@ const {delay} = require('./utils.js');
 
 
 class SocialMediaBot {
-    constructor() {
+      constructor() {
     this.browser = null;
     this.page = null;
     this.cookies = null;
@@ -15,18 +15,24 @@ class SocialMediaBot {
 
   async initialize() {
     await this._init_driver();
+    
   }
 
-  async _init_driver(params=NaN)
+  async _init_driver(contextPath = 'twitterContext')
   {
-    //this.browser = "HELLO";
-    this.browser = await webkit.launch({ headless: false });
+   // this.browser = await webkit.launch({ headless: false });
+    this.browser = NaN;
+    try {
+      this.context = await webkit.launchPersistentContext(contextPath, { headless: false });
+    } catch (error) {
+      console.log("ERR:", error);
+      this.browser = await webkit.launch({ headless: false });
+      this.context = await this.browser.newContext();
+    }
 
-//    this.browser = await edge.launch({
-  //    headless:false
-   // });
-    this.page = await this.browser.newPage();
+    this.page = await this.context.newPage(); // Create a new page within the existing context.
     console.log(this.browser, this.page);
+
   }
 
 
@@ -39,16 +45,16 @@ class SocialMediaBot {
 }
 
 
-async checkElement(selector, msg_true="", msg_false="", time_ms=3000){
-  const element = await this.waitForElement(selector, time_ms);
-  if (element) {
-    console.log(msg_true);
-    return element;
-  } else {
-    console.log(msg_false);
-    return false;
+  async checkElement(selector, msg_true="", msg_false="", time_ms=3000){
+    const element = await this.waitForElement(selector, time_ms);
+    if (element) {
+      console.log(msg_true);
+      return element;
+    } else {
+      console.log(msg_false);
+      return false;
+    }
   }
-}
 
   // Abstract methods (to be overridden by subclasses)
   async  log_in(username, password) {
