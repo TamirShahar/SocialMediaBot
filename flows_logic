@@ -1,0 +1,227 @@
+TWITTER:
+
+like
+{
+  check_logged_in
+  (log in if needed)
+  goto home
+  goto post
+  if video:
+    watch_until_75_percent
+  like
+  close tab
+}
+
+comment
+{
+  check_logged_in
+  (log in if needed)
+  goto home
+  goto post
+  if video:
+    watch_until_75_percent
+  comment
+  close tab
+}
+
+comment_on_comment
+{
+	same as comment - because a link to a comment is te same as a link to a post
+}
+
+
+
+retweet
+{
+check_logged_in
+  (log in if needed)
+  goto home
+  goto post
+  if video:
+    watch_until_75_percent
+  save
+  close tab  
+}
+
+
+report_user
+{
+  check_logged_in
+  (log in if needed)
+  goto home
+  goto user
+  report
+    close tab
+}
+
+upload_post
+{
+check_logged_in
+  (log in if needed)
+  goto home
+  post
+  close tab  
+}
+
+
+
+
+
+TIKTOK:
+like
+{
+  check_logged_in
+  (log in if needed)
+  goto home
+  goto post
+  watch_until_75_percent
+  like
+  close tab
+}
+
+comment
+{
+  check_logged_in
+  (log in if needed)
+  goto home
+  goto post
+  watch_until_75_percent
+  comment
+  close tab
+}
+
+
+
+
+report_video
+{
+  check_logged_in
+  (log in if needed)
+  goto home
+  goto post
+  watch_until_75_percent
+  report
+  close tab
+}
+
+report_user
+{
+  check_logged_in
+  (log in if needed)
+  goto home
+  goto user
+  report
+    close tab
+}
+
+upload_post
+{
+check_logged_in
+  (log in if needed)
+  goto home
+  post
+  close tab  
+}
+
+
+send_dm
+{
+	check_logged_in
+  (log in if needed)
+  goto home
+  goto user
+  send message
+  close tab
+  
+}
+
+
+
+Instagram:
+
+like
+{
+  check_logged_in
+  (log in if needed)
+  goto home
+  goto post
+  if video:
+    watch_until_75_percent
+  like
+  close tab
+}
+
+comment
+{
+  check_logged_in
+  (log in if needed)
+  goto home
+  goto post
+  if video:
+    watch_until_75_percent
+  comment
+  close tab
+}
+
+comment_on_comment
+{
+Will Be determined
+
+}
+
+save
+{
+  check_logged_in
+  (log in if needed)
+  goto home
+  goto post
+  if video:
+    watch_until_75_percent
+  save
+  close tab
+}
+
+
+report_post
+{
+  check_logged_in
+  (log in if needed)
+  goto home
+  goto post
+  if video
+	watch_until_25_percent
+  report
+  close tab
+}
+
+report_user
+{
+  check_logged_in
+  (log in if needed)
+  goto home
+  goto user
+  report
+    close tab
+}
+
+upload_post/story/reel
+{
+check_logged_in
+  (log in if needed)
+  goto home
+  post
+  close tab  
+}
+
+
+send_dm
+{
+   check_logged_in
+  (log in if needed)
+  goto home
+  perform dm logic
+  close tab
+  
+}
+
+
