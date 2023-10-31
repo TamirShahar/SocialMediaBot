@@ -5,6 +5,7 @@ const { delay } = require('./utils.js');
 const LOGGED_OUT_ERR = 1;
 const LANGUAGE_ERR = 2;
 const INVALID_LINK_ERR = 3;
+const UNKNOWN_ERR = -1;
 
 // Example of a subclass implementing the methods
 class InstagramBot extends SocialMediaBot {
@@ -12,14 +13,18 @@ class InstagramBot extends SocialMediaBot {
   constructor() {
     super();
   }
-  async inside_post_get_error_type(post_link)
+
+  async get_error_type(post_link)
   {
 
     await this.page.goto('https://www.instagram.com/?lang=en');
     try
     {
-      const instagramImg = await this.page.$('/html/body/div[2]/div/div/div[2]/div/div/div/div[1]/section/main/article/div[2]/div[1]/div[1]/div/i');
-      return LOGGED_OUT_ERR;
+      const instagramImg = await this.page.$('//html/body/div[2]/div/div/div[2]/div/div/div/div[1]/section/main/article/div[2]/div[1]/div[1]/div/i');
+      if(instagramImg)
+      {
+        return LOGGED_OUT_ERR;
+      }      
     }
     catch(error)
     {//Timeout Error - we assume that it's because the element isn't found - meaning that we are logged in
@@ -27,7 +32,35 @@ class InstagramBot extends SocialMediaBot {
 
     try
     {
-      await this.page.get_by_role("link", name="Home Home");
+      await this.page.locator('div').filter({ hasText: /^HomeHome$/ }).nth(2).click();
+    }
+    catch(error)
+    {//Timeout Error - we assume that it's because the element isn't found - meaning that it's in a different language
+      return LANGUAGE_ERR;
+    }
+
+
+
+  }
+  async inside_post_get_error_type(post_link)
+  {
+
+    await this.page.goto('https://www.instagram.com/?lang=en');
+    try
+    {
+      const instagramImg = await this.page.$('//html/body/div[2]/div/div/div[2]/div/div/div/div[1]/section/main/article/div[2]/div[1]/div[1]/div/i');
+      if(instagramImg)
+      {
+        return LOGGED_OUT_ERR;
+      }      
+    }
+    catch(error)
+    {//Timeout Error - we assume that it's because the element isn't found - meaning that we are logged in
+    }
+
+    try
+    {
+      await this.page.locator('div').filter({ hasText: /^HomeHome$/ }).nth(2).click();
     }
     catch(error)
     {//Timeout Error - we assume that it's because the element isn't found - meaning that it's in a different language
@@ -36,27 +69,31 @@ class InstagramBot extends SocialMediaBot {
 
     try
     {
+      await this.page.goto(post_link);
+      /*await delay(2000);
       const langButton = await this.page.$('/html/body/div[2]/div/div/div[2]/div/div/div/div[1]/div[1]/div[2]/section/div[1]/footer/div/div[2]/span/select');
       if(langButton)//every ig post contains a lang setting at the bottom of the page
       {
         await selectElement.evaluate((element) => {
           element.value = 'en';//making sure the language is english
         });
-
+        */
         try
         {//if this crashes - then the text isn't available - meaning that the post is available
-          await this.page.getByText('Sorry, this page isn\'t available.');
+          await this.page.$('//html/body/div[2]/div/div/div[2]/div/div/div/div[1]/section/main/div/div');
+       //   await this.page.getByText('Sorry, this page isn\'t available.');
           return INVALID_LINK_ERR;
         }
         catch(err)
         {//meaning that the post is available
+          return UNKNOWN_ERR;
         }
-      }
+   //   }
       //if the setting doesn't exist - this isnt a post- meaning the link is invalid
-      else
+     /* else
       {
         return INVALID_LINK_ERR;
-      }
+      }*/
       
     }
     catch(error)
@@ -68,26 +105,108 @@ class InstagramBot extends SocialMediaBot {
 
   }
 
-  async action_wrapper(action)
+  async post_action_wrapper(action, ...args)
   {
-    try{
-      action();
-    }
-    catch(error)
+    let action_succeeded = false;
+    let prev_vals = [];
+    while(true)
     {
-      //to differentiate error:
-      check_language();
+      try{
+        const ret_val = await this.action(...args);
+        console.log(ret_val);
+
+        if(ret_val == true)
+        {
+          return true;
+        }
+        if( prev_vals.includes(ret_val))
+        {//if we got an error which we have already had - the fix didnt work - we return
+          console.log('Error occured twice - fix failed');
+          return false;
+        }
+        else if(ret_val == LOGGED_OUT_ERR)
+        {
+          const {email, password, ...otherArgs} = args;
+          const did_log_in = await this.log_in(email, password);
+          if(!did_log_in)
+          {//means that we failed to fix the issue
+            console.log('failed to fix log out error');
+            return false;
+          }
+        }
+        else
+        {
+         //const err_type =await this.inside_post_get_error_type(args.link);
+         const err_type =await this.get_error_type(args.link);
+         
+         console.log(err_type);
+         if(prev_vals.includes(err_type))
+         {
+          console.log('Error occured twice - fix failed');
+          return false;
+         }
+         if(err_type == LOGGED_OUT_ERR)
+         {
+          const {email, password, ...otherArgs} = args;
+          const did_log_in = await this.log_in(email, password);
+          if(!did_log_in)
+          {//means that we failed to fix the issue
+            console.log('failed to fix log out error');
+            return false;
+          }         
+        }
+         else if(ret_val == LANGUAGE_ERR)
+         {
+            this.change_language_to_english();
+         }
+         else if(ret_val == INVALID_LINK_ERR)
+         {
+            return false;
+         }
+        }
+
+        prev_vals.push(ret_val);
+      }catch(error)
+      {
+        return false;
+        //to differentiate error:
+      }
+
     }
   }
 
+  async check_logged_in(to_load_homepage=true)
+  {
+    if(to_load_homepage)
+    {
+      await this.page.goto('https://www.instagram.com/?lang=en');
+    }
+    try
+    {
+      const instagramImg = await this.page.$('//html/body/div[2]/div/div/div[2]/div/div/div/div[1]/section/main/article/div[2]/div[1]/div[1]/div/i');
+      if(instagramImg)
+      {
+        return false;
+      }
+      return true;
+    }
+    catch(error)
+    {
+      return true;
+    }
 
+  }
   ///html/body/div[2]/div/div/div[2]/div/div/div/div[1]/div[1]/div[2]/section/div[1]/footer/div/div[2]/span/select
   
     async log_in(username, password) {
         try {
             await this.page.goto('https://www.instagram.com/?lang=en');
-            await this.page.getByLabel('Phone number, username, or email address').click();
-            await this.page.getByLabel('Phone number, username, or email address').fill(username);
+            if(this.check_logged_in(false))
+            {
+              return true;
+            }
+            await this.page.getByLabel('Phone number, username or email address').click();
+            await this.page.getByLabel('Phone number, username or email address').fill(username);
             await this.page.getByLabel('Password').click();
             await this.page.getByLabel('Password').fill(password);
             await this.page.getByRole('button', { name: 'Log in', exact: true }).click();
@@ -95,25 +214,41 @@ class InstagramBot extends SocialMediaBot {
             if (continueButton) {
                 await continueButton.click();
             }
-        } catch (error) {
+            return this.check_logged_in(false);
+          } catch (error) {
             console.log('ERR:');
             console.error(error);
-            this.logged_in = false; // Return false in case of any errors
+            return false; // Return false in case of any errors
         }
-
-        this.logged_in = true;
     }
 //POSSIBLE ERRORS - 
 //LANG
 //LOGGED OUT
 //POST DOESNT EXIST
 // PAGE BLOCKED
-    async like_post(link) {
+    async  like_post(link) {
         // Implement like_post logic for Instagram
           const login_popup_xpath = '//html/body/div[7]/div[1]/div/div[2]/div/div/div';
         try {
             await this.page.goto(link);
-            await this.page.getByRole('button', { name: 'Like'}).click();
+            try
+            { 
+              const likeBtn = await this.page.getByRole('button', { name: 'Like' });
+              if(likeBtn)
+              {
+                await likeBtn.click();
+              }
+              else{
+                return false;
+              }
+              //const like_button = await this.page.$('//html/body/div[2]/div/div/div[2]/div/div/div/div[1]/div[1]/div[2]/section/main/div/div[1]/div/div[2]/div/div[3]/div[1]/div[1]/span[1]/div');
+              //await like_button.click();
+            }
+            catch(error)
+            {
+              console.error(error);
+              return false;
+            }
             try
             {
               const newElement = await this.page.waitForSelector(login_popup_xpath, { state: 'visible' });
@@ -139,7 +274,7 @@ class InstagramBot extends SocialMediaBot {
 
   // TODO: methods upload_post, upload_story, and upload_reel aren't implementations of SocialMediaBot's abstract methods.
   // TODO: These methods also have not been properly tested.
-  async upload_post(inputFiles, captions, location=NaN) {
+  async upload_post(inputFiles, captions, location=NaN) { 
     // UNTESTED CODE:
     try {
       // Click on create new post button
