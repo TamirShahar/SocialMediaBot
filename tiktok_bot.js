@@ -9,10 +9,6 @@ class TikTokBot extends SocialMediaBot {
     super();
   }
 
-
-
-  
-
   async log_in_by_username(username, password) {  
       
     await this.page.goto('https://www.tiktok.com/explore');
@@ -63,7 +59,7 @@ async log_in_by_mail(mail, password){
   async like_post(link) {
     await this.page.goto(link);
     var like_btn = await this.page.waitForSelector('span[data-e2e="like-icon"]');
-     like_btn?.click();
+     like_btn.click();
   }
 
   async save_post(link) {
