@@ -255,6 +255,18 @@ class InstagramBot extends SocialMediaBot {
 
   async send_dm(username, msg_str) {
     // Implement send_dm logic for Instagram
+    try{
+      await this.page.goto("https://www.instagram.com/"+username+"/");
+      await this.page.getByRole('button', { name: 'Message' }).click();
+      await this.page.getByRole('paragraph').click();
+      await this.page.getByLabel('Message', { exact: true }).fill(msg_str);
+      await this.page.getByRole('button', { name: 'Send' }).click();
+
+    }catch (error) {
+    console.error(error);
+    return false; // Return false in case of any errors
+    }
+    
   }
 
   async upload_post(inputFiles, captions, location=NaN) { 
